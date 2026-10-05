@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123f53">
+  <title>Home</title>
+  <style>
+    :root{font-family:Inter,Segoe UI,Arial,sans-serif;color:#17324a;background:#eef4f7}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 10% 0,#d9f2ed 0,transparent 33%),#eef4f7}.top{height:76px;background:#fff;border-bottom:1px solid #e4ecef;display:flex;align-items:center;justify-content:space-between;padding:0 max(24px,calc((100% - 1100px)/2))}.brand{font-weight:750;letter-spacing:.02em;color:#164d5b}.logout{border:1px solid #d6e1e6;background:#fff;border-radius:9px;padding:10px 14px;color:#365467;font:inherit;font-weight:650;cursor:pointer}.wrap{width:min(100% - 40px,1000px);margin:58px auto}.card{background:#fff;border-radius:22px;padding:clamp(28px,6vw,58px);box-shadow:0 18px 54px #1a385214}.eyebrow{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#27837e}.card h1{font-size:clamp(32px,5vw,48px);margin:12px 0;letter-spacing:-.04em}.card p{color:#647988;line-height:1.7;max-width:640px}.account{margin-top:30px;background:#f3f8f8;border:1px solid #e3eeee;border-radius:14px;padding:18px 20px}.account strong{display:block;color:#20475a;margin-bottom:6px}.account span{color:#58717f;font-size:14px}.notice{margin-top:24px;padding:14px 16px;border-left:3px solid #27837e;background:#f2f8f7;color:#527078;font-size:13px;line-height:1.6} .loading{opacity:.7}
+  </style>
+</head>
+<body class="loading">
+  <header class="top"><div class="brand">Student Portal</div><button class="logout" id="logoutButton" type="button">Sign out</button></header>
+  <main class="wrap">
+    <section class="card">
+      <div class="eyebrow">Home page</div>
+      <h1 id="welcome">Checking your account…</h1>
+      <p>You have signed in successfully. This is the page that opens after a valid registration or login.</p>
+      <div class="account"><strong>Signed in as</strong><span id="accountDetails"></span></div>
+      <div class="notice">To use your own GitHub home page, place its HTML and assets in the <code>public</code> folder. Keep this account check so visitors must sign in before the page is shown.</div>
+    </section>
+  </main>
+  <script>
+    async function loadAccount(){
+      try{
+        const response=await fetch('/.netlify/functions/auth?action=me');
+        if(!response.ok){window.location.replace('/auth.html');return;}
+        const result=await response.json();
+        document.querySelector('#welcome').textContent=`Welcome, ${result.user.name}`;
+        document.querySelector('#accountDetails').textContent=result.user.email;
+        document.body.classList.remove('loading');
+      }catch{window.location.replace('/auth.html');}
+    }
+    document.querySelector('#logoutButton').addEventListener('click',async()=>{
+      await fetch('/.netlify/functions/auth?action=logout',{method:'POST'}).catch(()=>{});
+      window.location.assign('/auth.html');
+    });
+    loadAccount();
+  </script>
+</body>
+</html>
+
